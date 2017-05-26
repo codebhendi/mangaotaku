@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import flask
-import mangaScrape
+from . import mangaScrape
 from webapp import app
 import re
 import shutil

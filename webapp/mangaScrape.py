@@ -1,24 +1,25 @@
 import os
-import urllib2
+import urllib.request as url_request
+import urllib.error as url_error
 import requests
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 import re
 from difflib import SequenceMatcher as sm
 from PIL import Image
-from StringIO import StringIO
+from io import StringIO
 from requests.exceptions import ConnectionError
 
 
-proxy = "http://<username>:<password>@<host>:<port>"
-proxyDict = {
-              "http": proxy,
-              "https": proxy,
-              "ftp": proxy
-            }
+#proxy = "http://<username>:<password>@<host>:<port>"
+#proxyDict = {
+#              "http": proxy,
+#              "https": proxy,
+#              "ftp": proxy
+#            }
 
-proxy_support = urllib2.ProxyHandler(proxyDict)
-opener = urllib2.build_opener(proxy_support)
-urllib2.install_opener(opener)
+#proxy_support = urllib2.ProxyHandler(proxyDict)
+opener = url_request.build_opener()
+url_request.install_opener(opener)
 hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
@@ -54,18 +55,19 @@ def saveImg(data, base_host, base_url, base_path, image_title):
     if "http" not in str(maxurl):
         maxurl = base_host.split("//")[0] + maxurl
 
+    print(maxurl)
     try:
-        image = requests.get(maxurl, proxies=proxyDict)
-        print "Images Saved Successfully"
+        image = requests.get(maxurl)
+        print("Images Saved Successfully")
     except:
-        print "Error        "
+        print ("Error")
         exit(0)
 
     file = open(os.path.join(base_path, "%s.jpg") % image_title, 'wb')
     try:
         Image.open(StringIO(image.content)).save(file, 'JPEG')
-    except IOError, e:
-        print "Couldnt Save:", e
+    except IOError as e:
+        print("Couldnt Save:", e)
 
     finally:
         file.close()
@@ -77,13 +79,13 @@ def linkData(base_url):
     try:
         #req = urllib2.Request(base_url, headers=hdr)
         #resp = urllib2.urlopen(req).read()
-        r = requests.get(base_url, proxies=proxyDict)
+        r = requests.get(base_url)
 
         data = bs("".join(r.text))
 
         return data
-    except urllib2.HTTPError, e:
-        print e.fp.read()
+    except url_error as e:
+        print(e.fp.read())
 
 
 def main(base_url, base_path, total_img):
@@ -112,9 +114,7 @@ def main(base_url, base_path, total_img):
         else:
             base_url = next_rel
 
-        print "Next page is", base_url
+        print("Next page is", base_url)
         imageUrl = saveImg(linkData(base_url), base_host, base_url, base_path, image_title)
         ctr = ctr + 1
-    print "Total Pages Downloaded: ", (ctr + 1)
-
-
+    print("Total Pages Downloaded: ", (ctr + 1))
