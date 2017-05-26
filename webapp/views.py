@@ -2,7 +2,9 @@
 # coding: utf-8
 
 import flask
-import mangaScrape
+# change file name from mangaScrape to mangaScrape3
+# along with uncomment line 30 and comment line 27
+from . import mangaScrape3
 from webapp import app
 import re
 import shutil
@@ -21,7 +23,12 @@ def webapp():
 		url = flask.request.form.get('url')
 		pages = flask.request.form.get('pages')
 		folder=re.split(r"/", url)[3] + "_"+re.split(r"/", url)[4]
+		# comment for python2
 		mangaScrape.main(url, folder, int(pages))
+
+		#uncomment for python3
+		# mangaScrape3.main(url, folder, int(pages))
+
 		os.path.dirname(os.path.abspath(__file__))
 		directory_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../" + folder)
 		shutil.make_archive(folder, 'zip', directory_name)

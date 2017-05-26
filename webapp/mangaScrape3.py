@@ -1,15 +1,16 @@
 import os
+import requests
+import re
 import urllib.request as url_request
 import urllib.error as url_error
-import requests
+
+from io import BytesIO
 from bs4 import BeautifulSoup as bs
-import re
 from difflib import SequenceMatcher as sm
-from PIL import Image
-from io import StringIO
 from requests.exceptions import ConnectionError
+from PIL import Image
 
-
+# uncomment this code for using proxy
 #proxy = "http://<username>:<password>@<host>:<port>"
 #proxyDict = {
 #              "http": proxy,
@@ -17,7 +18,9 @@ from requests.exceptions import ConnectionError
 #              "ftp": proxy
 #            }
 
-#proxy_support = urllib2.ProxyHandler(proxyDict)
+#proxy_support = url_request.ProxyHandler(proxyDict)
+# opener = url_request.build_opener(proxy_support)
+
 opener = url_request.build_opener()
 url_request.install_opener(opener)
 hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -55,8 +58,11 @@ def saveImg(data, base_host, base_url, base_path, image_title):
     if "http" not in str(maxurl):
         maxurl = base_host.split("//")[0] + maxurl
 
-    print(maxurl)
     try:
+        # uncomment if proxy settings
+        # image = requests.get(maxurl, proxies=proxyDict)
+
+        # comment if proxy settings
         image = requests.get(maxurl)
         print("Images Saved Successfully")
     except:
@@ -65,7 +71,7 @@ def saveImg(data, base_host, base_url, base_path, image_title):
 
     file = open(os.path.join(base_path, "%s.jpg") % image_title, 'wb')
     try:
-        Image.open(StringIO(image.content)).save(file, 'JPEG')
+        Image.open(BytesIO(image.content)).save(file, 'JPEG')
     except IOError as e:
         print("Couldnt Save:", e)
 
@@ -79,6 +85,10 @@ def linkData(base_url):
     try:
         #req = urllib2.Request(base_url, headers=hdr)
         #resp = urllib2.urlopen(req).read()
+        # uncomment if proxy settings
+        # r = requests.get(base_url, proxies=proxyDict)
+
+        # comment if proxy settings
         r = requests.get(base_url)
 
         data = bs("".join(r.text))
