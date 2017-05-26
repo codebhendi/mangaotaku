@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import flask
+# change file name from mangaScrape to mangaScrape3
 from . import mangaScrape
 from webapp import app
 import re
